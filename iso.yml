@@ -1,0 +1,24 @@
+name: build-psp
+on:
+  push:
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: pspdev/pspdev:latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: ISO araci kur
+        run: |
+          if command -v apk >/dev/null; then apk add --no-cache cdrkit bash; else apt-get update && apt-get install -y genisoimage; fi
+      - name: Derle
+        run: sh ./build_iso.sh
+      - name: Dosyalari hazirla
+        run: |
+          mkdir out
+          cp MiniArcade.iso EBOOT.PBP out/
+          cp MiniArcade.prx out/EBOOT.BIN
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MiniArcade
+          path: out/
